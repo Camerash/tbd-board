@@ -1,0 +1,16 @@
+# Private handover material (not part of the product)
+HANDOVER.md
+_handover/
+
+# Python
+__pycache__/
+*.pyc
+
+# OS and editor files
+.DS_Store
+.idea/
+.vscode/
+
+# Local test output
+/tmp/
+*.tmp

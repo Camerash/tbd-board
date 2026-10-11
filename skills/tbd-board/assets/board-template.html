@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="tbd-board 1.0.0">
+<title>TBD Board</title>
+<style>
+  /* Colour tokens. Light is the default. Dark follows the system, or ?theme=dark / ?theme=light.
+     The two dark blocks must stay equal. */
+  :root {
+    color-scheme: light;
+    --bg: #eef1ee; --card: #fbfcfb; --ink: #1c2420; --muted: #56635c; --line: #c9d2cc; --edge: #6e7b74;
+    --accent: #2f5d8a; --on-accent: #fbfcfb; --block: #a3271b; --urgent: #8f5600; --normal: #2f5d8a;
+    --low: #56635c; --ok: #2e6b47; --chip-bg: #e3e9e5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --bg: #141917; --card: #1c2320; --ink: #e3ebe6; --muted: #a2b0a8; --line: #33403a; --edge: #6c7b73;
+      --accent: #8ab6e8; --on-accent: #101614; --block: #f0897c; --urgent: #f0b45c; --normal: #8ab6e8;
+      --low: #95a39b; --ok: #7fcf9f; --chip-bg: #26302c;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #141917; --card: #1c2320; --ink: #e3ebe6; --muted: #a2b0a8; --line: #33403a; --edge: #6c7b73;
+    --accent: #8ab6e8; --on-accent: #101614; --block: #f0897c; --urgent: #f0b45c; --normal: #8ab6e8;
+    --low: #95a39b; --ok: #7fcf9f; --chip-bg: #26302c;
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { margin: 0; background: var(--bg); color: var(--ink); overflow-wrap: anywhere;
+         font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 860px; margin: 0 auto; padding: 24px 16px 64px; }
+  h1 { font-size: 1.6rem; margin: 0 0 4px; }
+  h2 { font-size: 1.1rem; margin: 32px 0 12px; border-bottom: 1px solid var(--line); padding-bottom: 6px; }
+  .meta { color: var(--muted); font-size: 0.9rem; }
+  p.meta { margin: 0 0 4px; }
+  .counts { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+  .chip { display: inline-block; padding: 2px 10px; border-radius: 999px; background: var(--chip-bg);
+          font-size: 0.8rem; font-weight: 600; }
+  .p-blocking { color: var(--block); } .p-urgent { color: var(--urgent); }
+  .p-normal { color: var(--normal); } .p-low { color: var(--low); } .p-other { color: var(--muted); }
+  .card { background: var(--card); border: 1px solid var(--line); border-left: 5px solid var(--muted);
+          border-radius: 8px; padding: 14px 16px; margin: 12px 0; }
+  .card.blocking { border-left-color: var(--block); } .card.urgent { border-left-color: var(--urgent); }
+  .card.normal { border-left-color: var(--normal); } .card.low { border-left-color: var(--low); }
+  .card h3 { margin: 4px 0 8px; font-size: 1.05rem; }
+  .head { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; color: var(--muted); font-size: 0.85rem; }
+  .id { font-family: ui-monospace, Menlo, monospace; font-weight: 700; color: var(--ink); }
+  .blocks { color: var(--block); font-weight: 600; margin: 6px 0; }
+  .card p { margin: 6px 0; }
+  ul.options { margin: 8px 0; padding-left: 20px; }
+  ul.options li { margin: 4px 0; }
+  ul.pick { list-style: none; padding: 0; }
+  .rec { background: var(--chip-bg); border-radius: 6px; padding: 8px 10px; margin: 8px 0; }
+  .imgs { display: flex; gap: 8px; overflow-x: auto; margin: 8px 0; }
+  .imgs figure { margin: 0; flex: 0 0 auto; width: 150px; }
+  .imgs img { width: 150px; min-height: 48px; border-radius: 6px; display: block; background: var(--chip-bg); }
+  .imgs a { color: var(--accent); }
+  .imgs figcaption { font-size: 12px; margin-top: 4px; }
+  .star { color: var(--ok); font-weight: 700; }
+  label { display: block; margin-top: 8px; }
+  textarea, input[type="search"] { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--edge);
+                                   background: var(--bg); color: var(--ink); font: inherit; }
+  textarea { min-height: 64px; margin-top: 4px; }
+  input[type="search"] { min-height: 44px; max-width: 420px; }
+  ::placeholder { color: var(--muted); opacity: 1; }
+  .row { display: flex; gap: 8px 12px; flex-wrap: wrap; margin-top: 8px; align-items: center; }
+  button { font: inherit; min-height: 44px; min-width: 44px; padding: 6px 14px; border-radius: 6px;
+           border: 1px solid var(--accent); background: transparent; color: var(--accent); cursor: pointer; }
+  button.primary, button[aria-pressed="true"].toggle { background: var(--accent); color: var(--on-accent); }
+  .opt { display: block; width: 100%; margin: 6px 0; text-align: left; border-color: var(--edge);
+         background: var(--card); color: var(--ink); }
+  .opt[aria-pressed="true"] { border-color: var(--accent); background: var(--chip-bg); box-shadow: inset 0 0 0 1px var(--accent); }
+  .opt[aria-pressed="true"]::before { content: "\2713\00a0"; color: var(--accent); font-weight: 700; }
+  :is(button, input, textarea, summary, a):focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .copied { color: var(--ok); font-size: 0.85rem; }
+  .filters { margin: 20px 0 8px; padding: 0 14px; background: var(--card); border: 1px solid var(--line); border-radius: 8px; }
+  .filters summary { font-weight: 600; }
+  .fbody { display: grid; gap: 10px; padding-bottom: 12px; }
+  .fbody label { margin-top: 0; }
+  #shown:empty { display: none; }
+  #no-match { margin: 0; }
+  .group { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .glabel { font-weight: 600; font-size: 0.85rem; color: var(--muted); min-width: 4.5em; }
+  .auto { border-left: 3px solid var(--ok); padding: 6px 12px; margin: 8px 0; background: var(--card); border-radius: 6px; }
+  .auto .why { color: var(--muted); font-size: 0.9rem; }
+  details { margin: 8px 0; }
+  summary { min-height: 44px; padding: 10px 0; cursor: pointer; }
+  .empty { color: var(--muted); font-style: italic; }
+  .error { border: 2px solid var(--block); background: var(--card); border-radius: 8px; padding: 12px 16px; margin: 16px 0; }
+  footer { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 40px; font-size: 0.8rem; }
+</style>
+</head>
+<body>
+<noscript><p class="error">This board needs JavaScript to show the cards.</p></noscript>
+<main>
+  <div id="error" class="error" role="alert" hidden></div>
+  <div id="board">
+    <h1 id="title">TBD Board</h1>
+    <p class="meta">Tap an option or write an answer under a card. Then use "Copy all answers" and paste the text into the chat.</p>
+    <div class="meta" id="updated"></div>
+    <div class="counts" id="counts"></div>
+    <div class="row">
+      <button type="button" class="primary" id="copy-all">Copy all answers</button>
+      <span id="progress" aria-live="polite"></span>
+      <span class="copied" id="copy-all-status" role="status"></span>
+    </div>
+
+    <section id="out" hidden>
+      <label for="out-text"><strong>Text to paste into the chat</strong></label>
+      <textarea id="out-text" readonly></textarea>
+    </section>
+
+    <div id="filter-area">
+      <details class="filters" id="filters">
+        <summary id="filters-summary">Search and filter</summary>
+        <div class="fbody">
+          <div><label for="search">Search</label><input type="search" id="search" autocomplete="off"></div>
+          <div class="group" role="group" aria-labelledby="gl-p"><span class="glabel" id="gl-p">Priority</span><span class="group" id="chips-p"></span></div>
+          <div class="group" role="group" aria-labelledby="gl-a" id="group-a" hidden><span class="glabel" id="gl-a">Area</span><span class="group" id="chips-a"></span></div>
+          <span class="meta" id="shown" aria-live="polite"></span>
+        </div>
+      </details>
+      <div class="row"><p class="empty" id="no-match" hidden>Nothing matches the filters.</p><button type="button" id="clear" hidden>Clear filters</button></div>
+    </div>
+
+    <h2 id="h-open">Open</h2>
+    <div id="open"></div>
+
+    <h2 id="h-auto">Decided for you</h2>
+    <div class="meta">Small or technical choices the agent made alone. Reply with the ID to change one.</div>
+    <div id="auto"></div>
+
+    <h2 id="h-closed">Answered and closed</h2>
+    <div id="closed"></div>
+
+    <footer class="meta" id="foot"></footer>
+  </div>
+</main>
+<script type="application/json" id="tbd-board-data">
+{"schema": 1, "boardId": "", "revision": 0, "title": "TBD Board", "updated": "", "log": "log.md", "questions": [], "autodecided": []}
+</script>
+<script id="tbd-board-renderer">
+(function () {
+  "use strict";
+  const PRIORITIES = ["blocking", "urgent", "normal", "low"];
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  // Data from the board file may have any shape. These helpers give empty values for wrong types.
+  const text = (v) => (typeof v === "string" ? v : typeof v === "number" ? String(v) : "");
+  const list = (v) => (Array.isArray(v) ? v : []);
+  const obj = (v) => (v && typeof v === "object" ? v : {});
+
+  // ?theme=light or ?theme=dark overrides the system setting. Other values are ignored.
+  const theme = new URLSearchParams(location.search).get("theme");
+  if (theme === "light" || theme === "dark") document.documentElement.dataset.theme = theme;
+
+  let data;
+  try {
+    data = JSON.parse($("tbd-board-data").textContent);
+    if (!data || typeof data !== "object" || Array.isArray(data)) throw new Error("The data is not a JSON object.");
+  } catch (e) {
+    $("board").hidden = true;
+    $("error").hidden = false;
+    $("error").innerHTML = `<strong>The board data cannot be read.</strong> ${esc(e.message)}<br>Ask your agent to run <code>board.py check</code> (the TBD Board helper) to find the problem.`;
+    return;
+  }
+
+  const boardId = text(data.boardId), revision = text(data.revision) || "0", title = text(data.title) || "TBD Board";
+  const prefix = "tbd-board:" + (boardId || "template") + ":";
+  // Every storage call can throw (blocked storage). The page then works without saved drafts.
+  const store = {
+    get(k) { try { return localStorage.getItem(prefix + k) || ""; } catch (e) { return ""; } },
+    set(k, v) { try { if (v) localStorage.setItem(prefix + k, v); else localStorage.removeItem(prefix + k); } catch (e) { /* not kept */ } }
+  };
+
+  // ---- Data ----
+  const rank = (p) => { const i = PRIORITIES.indexOf(p); return i < 0 ? 9 : i; };
+  const idNum = (id) => parseInt(id.replace(/\D+/g, ""), 10) || 0;
+  const cards = list(data.questions).map(obj).map((q) => ({
+    id: text(q.id), title: text(q.title), priority: text(q.priority), status: text(q.status), area: text(q.area),
+    asked: text(q.asked), blocks: text(q.blocks), context: list(q.context).map(text), images: list(q.images).map(obj),
+    options: list(q.options).map(obj).map((o) => ({ label: text(o.label), detail: text(o.detail), recommended: o.recommended === true }))
+      .filter((o) => o.label),
+    recommendation: text(q.recommendation), decision: text(q.decision)
+  })).sort((a, b) => rank(a.priority) - rank(b.priority) || idNum(a.id) - idNum(b.id) || a.id.localeCompare(b.id));
+  const autos = list(data.autodecided).map(obj).map((a) => ({
+    id: text(a.id), date: text(a.date), title: text(a.title), decision: text(a.decision), reason: text(a.reason), changed: text(a.changed)
+  }));
+
+  // Safe image address (same rule as scripts/board.py): https:// or a plain relative path.
+  // Tabs, line breaks and edge spaces are refused too, because browsers drop them inside an address.
+  const safeSrc = (s) => !!s && !/[\u0000-\u001f\u007f]/.test(s) && s === s.trim() &&
+    (s.startsWith("https://") || (!/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(s) && !/^[\\/]/.test(s) && !s.includes("\\")));
+
+  // ---- Answers ----
+  const entries = []; // open cards in display order: { q, ta }
+  // An answer is the trimmed text. A run of blank lines inside it becomes one line break.
+  const answerOf = (e) => e.ta.value.trim().replace(/\n(?:[ \t]*\n)+/g, "\n");
+  const answeredSentence = () => `${entries.filter(answerOf).length} of ${entries.length} open card${entries.length === 1 ? "" : "s"} answered.`;
+  function updateProgress() {
+    const n = entries.filter((e) => e.q.priority === "blocking" && !answerOf(e)).length;
+    const t = answeredSentence() + (n ? ` ${n} blocking card${n === 1 ? " has" : "s have"} no answer.` : "");
+    if ($("progress").textContent !== t) $("progress").textContent = t;
+  }
+
+  // An option is "chosen" when the box starts with its label and the next character is not a letter or digit.
+  const startsWithLabel = (t, label) => t.startsWith(label) && !/^[\p{L}\p{N}]/u.test(t.slice(label.length));
+  const longestLabel = (t, options) => options.reduce((best, o) => (startsWithLabel(t, o.label) && o.label.length > best.length ? o.label : best), "");
+
+  // Copy inside the click handler without waiting first (Safari drops the gesture after an await),
+  // and always show the text in a box, so a manual copy works when the clipboard is blocked.
+  function copyText(t, statusEl, hasAnswers) {
+    const box = $("out-text");
+    $("out").hidden = false;
+    box.value = t;
+    box.focus();
+    box.select();
+    if (!hasAnswers) { statusEl.textContent = "No answers written yet."; return; }
+    const done = "Copied. The text is also in the box above.";
+    let ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    statusEl.textContent = ok ? done : "Select the text in the box above and copy it.";
+    if (!ok && navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(t).then(() => { statusEl.textContent = done; }, () => {});
+    }
+  }
+  function copyAnswers(from, statusEl) {
+    const d = new Date(), p = (n) => String(n).padStart(2, "0");
+    const stamp = `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+    const given = from.filter(answerOf);
+    const head = `TBD Board answers: ${title} (board ${boardId}, rev ${revision}), ${stamp}, ${answeredSentence()}`;
+    copyText(given.length ? [head, ...given.map((e) => `${e.q.id} (${e.q.title}): ${answerOf(e)}`)].join("\n\n") : "(no answers written yet)",
+      statusEl, given.length > 0);
+  }
+
+  // ---- Cards ----
+  const imageHtml = (i) => {
+    const src = text(i.src), cap = text(i.caption);
+    return safeSrc(src)
+      ? `<figure><a href="${esc(src)}" target="_blank" rel="noopener"><img src="${esc(src)}" alt="${esc(cap || "Image")}" loading="lazy"></a><figcaption>${esc(cap)}</figcaption></figure>`
+      : `<figure><figcaption>${esc(cap || "Image")} (image not shown: unsafe address)</figcaption></figure>`;
+  };
+  function buildCard(q, n) {
+    const isOpen = q.status === "open";
+    const el = document.createElement("article");
+    el.className = "card " + (PRIORITIES.includes(q.priority) ? q.priority : "other");
+    el.dataset.id = q.id;
+    el.setAttribute("aria-labelledby", "t-" + n);
+    const opts = q.options.map((o) => {
+      const inner = `${o.recommended ? '<span class="star">Recommended: </span>' : ""}<strong>${esc(o.label)}</strong>${o.detail ? " — " + esc(o.detail) : ""}`;
+      return `<li>${isOpen ? `<button type="button" class="opt" aria-pressed="false">${inner}</button>` : inner}</li>`;
+    }).join("");
+    el.innerHTML = `
+      <div class="head"><span class="id">${esc(q.id)}</span>
+        <span class="chip p-${PRIORITIES.includes(q.priority) ? q.priority : "other"}">${esc(q.priority || "no priority")}</span>
+        ${q.area ? `<span>${esc(q.area)}</span>` : ""}<span>asked ${esc(q.asked)}</span></div>
+      <h3 id="t-${n}">${esc(q.title)}</h3>
+      ${q.blocks ? `<div class="blocks">Work stopped until you answer: ${esc(q.blocks)}</div>` : ""}
+      ${q.context.map((p) => `<p>${esc(p)}</p>`).join("")}
+      ${q.images.length ? `<div class="imgs">${q.images.map(imageHtml).join("")}</div>` : ""}
+      ${opts ? `<ul class="options${isOpen ? " pick" : ""}">${opts}</ul>` : ""}
+      ${q.recommendation ? `<div class="rec"><strong>Agent recommendation:</strong> ${esc(q.recommendation)}</div>` : ""}
+      ${isOpen ? `
+        <label for="ans-${n}">Your answer to ${esc(q.id)}</label>
+        <textarea id="ans-${n}" placeholder="Tap an option above, or write your answer."></textarea>
+        <div class="row"><button type="button" data-copy aria-describedby="t-${n}">Copy this answer</button>
+          <button type="button" class="toggle later" aria-pressed="false">Decide later</button>
+          <span class="copied" role="status"></span></div>`
+        : `<div class="rec"><strong>Decision:</strong> ${esc(q.decision || q.status)}</div>`}`;
+    if (isOpen) wireAnswer(el, q);
+    return el;
+  }
+  function wireAnswer(el, q) {
+    const ta = el.querySelector("textarea"), later = el.querySelector(".later"), btns = [...el.querySelectorAll(".opt")];
+    const entry = { q, ta };
+    let kept = ""; // the text that "Decide later" replaced
+    const sync = () => {
+      btns.forEach((b, i) => b.setAttribute("aria-pressed", startsWithLabel(ta.value, q.options[i].label)));
+      later.setAttribute("aria-pressed", ta.value === "Later");
+    };
+    const change = () => { store.set("draft:" + q.id, ta.value); sync(); updateProgress(); };
+    ta.value = store.get("draft:" + q.id);
+    ta.addEventListener("input", change);
+    btns.forEach((b, i) => b.addEventListener("click", () => {
+      const label = q.options[i].label, chosen = startsWithLabel(ta.value, label);
+      const rest = ta.value.slice(longestLabel(ta.value, q.options).length);
+      const r = rest.replace(/^\s+/, "");
+      ta.value = chosen ? rest.replace(/^[\s,.;:]+/, "") : !r ? label : /^[,.;:!?]/.test(r) ? label + r : label + ", " + r;
+      change();
+      ta.focus();
+      ta.setSelectionRange(ta.value.length, ta.value.length);
+    }));
+    later.addEventListener("click", () => {
+      if (ta.value === "Later") ta.value = kept;
+      else { kept = ta.value; ta.value = "Later"; }
+      change();
+    });
+    el.querySelector("[data-copy]").addEventListener("click", () => copyAnswers([entry], el.querySelector(".copied")));
+    entries.push(entry);
+    sync();
+  }
+  function buildAuto(a, n) {
+    const div = document.createElement("article");
+    div.className = "auto";
+    div.setAttribute("aria-labelledby", "a-" + n);
+    div.innerHTML = `<div class="head"><span class="id">${esc(a.id)}</span><span>${esc(a.date)}</span></div>
+      <strong><span id="a-${n}">${esc(a.title)}</span>:</strong> ${esc(a.decision)}<div class="why">Why: ${esc(a.reason)}</div>
+      ${a.changed ? `<div class="why">Changed: ${esc(a.changed)}</div>` : ""}`;
+    return div;
+  }
+
+  // ---- Sections and filters ----
+  // Every item is built once. A filter only sets "hidden" on the built elements.
+  const hay = (...parts) => parts.flat().join("\n").toLowerCase();
+  const sections = [
+    { name: "Open", heading: $("h-open"), host: $("open"), empty: "No open questions.", items: [] },
+    { name: "Decided for you", heading: $("h-auto"), host: $("auto"), empty: "Nothing yet.", items: [] },
+    { name: "Answered and closed", heading: $("h-closed"), host: $("closed"), empty: "Nothing yet.", items: [] }
+  ];
+  const [secOpen, secAuto, secClosed] = sections;
+  cards.forEach((q, n) => {
+    const item = { el: buildCard(q, n), priority: q.priority, area: q.area,
+      hay: hay(q.id, q.title, q.area, q.context, q.options.flatMap((o) => [o.label, o.detail]), q.recommendation, q.decision) };
+    (q.status === "open" ? secOpen : secClosed).items.push(item);
+  });
+  autos.forEach((a, n) => secAuto.items.push({ el: buildAuto(a, n), priority: "", area: "", hay: hay(a.id, a.title, a.decision, a.reason, a.changed) }));
+  let closedBox = null;
+  if (secClosed.items.length) {
+    closedBox = document.createElement("details");
+    closedBox.innerHTML = "<summary>Show answered and closed cards</summary>";
+    secClosed.host.appendChild(closedBox);
+    secClosed.body = closedBox;
+  }
+  sections.forEach((s) => {
+    if (!s.items.length) s.host.innerHTML = `<p class="empty">${s.empty}</p>`;
+    s.items.forEach((it) => (s.body || s.host).appendChild(it.el));
+  });
+
+  const chipHtml = (group, value) =>
+    `<button type="button" class="toggle" data-group="${group}" data-value="${esc(value)}" aria-pressed="false">${esc(value)}</button>`;
+  const areas = [...new Set(cards.map((q) => q.area).filter(Boolean))].sort();
+  $("chips-p").innerHTML = PRIORITIES.map((p) => chipHtml("p", p)).join("");
+  $("chips-a").innerHTML = areas.map((a) => chipHtml("a", a)).join("");
+  $("group-a").hidden = !areas.length;
+
+  const state = { q: "", p: new Set(), a: new Set() };
+  try {
+    const saved = JSON.parse(store.get("filter") || "null");
+    if (saved && typeof saved === "object") {
+      if (typeof saved.q === "string") state.q = saved.q;
+      list(saved.p).forEach((v) => PRIORITIES.includes(v) && state.p.add(v));
+      list(saved.a).forEach((v) => areas.includes(v) && state.a.add(v));
+    }
+  } catch (e) { /* a bad saved filter is ignored */ }
+
+  // The summary shows the result count while the panel is closed, so a closed panel still tells that a filter is active.
+  let filterMsg = "";
+  function updateSummary() {
+    $("filters-summary").textContent = "Search and filter" + (filterMsg && !$("filters").open ? ` (${filterMsg})` : "");
+  }
+  function applyFilters() {
+    const q = state.q.trim().toLowerCase();
+    const active = !!q || state.p.size > 0 || state.a.size > 0;
+    let shownAll = 0, totalAll = 0;
+    sections.forEach((s) => {
+      let shown = 0;
+      s.items.forEach((it) => {
+        // An item without a value for an active chip group does not match (for example a decided-for-you entry).
+        const ok = (!q || it.hay.includes(q)) && (!state.p.size || state.p.has(it.priority)) && (!state.a.size || state.a.has(it.area));
+        it.el.hidden = !ok;
+        if (ok) shown++;
+      });
+      s.heading.textContent = `${s.name} (${active ? shown + " of " + s.items.length : s.items.length})`;
+      shownAll += shown;
+      totalAll += s.items.length;
+      s.shown = shown;
+    });
+    if (closedBox) {
+      closedBox.hidden = secClosed.shown === 0;
+      if (active && secClosed.shown > 0) closedBox.open = true;
+    }
+    filterMsg = active ? `${shownAll} of ${totalAll} shown` : "";
+    $("shown").textContent = filterMsg;
+    updateSummary();
+    $("clear").hidden = !active;
+    $("no-match").hidden = !(active && shownAll === 0);
+    return active;
+  }
+  function syncFilterUi() {
+    $("search").value = state.q;
+    $("filters").querySelectorAll("button[data-group]").forEach((b) => b.setAttribute("aria-pressed", state[b.dataset.group].has(b.dataset.value)));
+  }
+  function filterChanged() {
+    const active = applyFilters();
+    store.set("filter", active ? JSON.stringify({ q: state.q, p: [...state.p], a: [...state.a] }) : "");
+  }
+  $("search").addEventListener("input", () => { state.q = $("search").value; filterChanged(); });
+  $("filter-area").addEventListener("click", (e) => {
+    const b = e.target.closest("button");
+    if (!b) return;
+    if (b.id === "clear") { state.q = ""; state.p.clear(); state.a.clear(); }
+    else if (b.dataset.group) { const set = state[b.dataset.group]; if (!set.delete(b.dataset.value)) set.add(b.dataset.value); }
+    else return;
+    syncFilterUi();
+    filterChanged();
+    if (b.id === "clear") ($("filters").open ? $("search") : $("filters-summary")).focus(); // the Clear button hides itself
+  });
+
+  // ---- Page ----
+  document.title = title;
+  $("title").textContent = title;
+  $("updated").textContent = "Updated: " + (text(data.updated) || "unknown");
+  $("counts").innerHTML = PRIORITIES.map((p) => `<span class="chip p-${p}">${entries.filter((e) => e.q.priority === p).length} ${p}</span>`).join("");
+  const version = ((document.querySelector('meta[name="generator"]') || {}).content || "").replace(/^tbd-board\s*/, "");
+  $("foot").innerHTML = `<span>TBD Board ${esc(version)}</span><span>Board ${esc(boardId || "(not set)")}, revision ${esc(revision)}</span>`;
+  $("copy-all").addEventListener("click", () => copyAnswers(entries, $("copy-all-status")));
+
+  // Remove saved drafts of cards that are not open any more, and drafts of unknown IDs.
+  try {
+    const stale = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith(prefix + "draft:") && !entries.some((e) => e.q.id === k.slice((prefix + "draft:").length))) stale.push(k);
+    }
+    stale.forEach((k) => localStorage.removeItem(k));
+  } catch (e) { /* storage blocked */ }
+
+  syncFilterUi();
+  // The filter panel is open on wide screens and when a saved filter is active.
+  const filtered = applyFilters();
+  $("filters").open = matchMedia("(min-width: 700px)").matches || filtered;
+  $("filters").addEventListener("toggle", updateSummary);
+  updateSummary();
+  updateProgress();
+})();
+</script>
+</body>
+</html>

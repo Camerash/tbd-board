@@ -1,0 +1,7 @@
+interface:
+  display_name: "TBD Board"
+  short_description: "Ask your human for decisions on one page, and keep a decision log"
+  icon_small: "./assets/icon.svg"
+  icon_large: "./assets/icon.png"
+  brand_color: "#2F5D8A"
+  default_prompt: "Set up a TBD board for this project."

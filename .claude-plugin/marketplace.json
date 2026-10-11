@@ -1,0 +1,17 @@
+{
+  "name": "camerash",
+  "owner": {
+    "name": "Esmond Wong",
+    "url": "https://github.com/Camerash"
+  },
+  "description": "Agent skills by Camerash.",
+  "plugins": [
+    {
+      "name": "tbd-board",
+      "source": "./",
+      "description": "Ask your human for decisions on one page, answer in a batch, and keep a decision log.",
+      "category": "productivity",
+      "keywords": ["decisions", "decision-log", "human-in-the-loop", "questions"]
+    }
+  ]
+}

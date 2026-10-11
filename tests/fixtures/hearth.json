@@ -1,0 +1,193 @@
+{
+  "schema": 1,
+  "boardId": "k7f3q2",
+  "revision": 14,
+  "title": "Hearth decisions",
+  "updated": "2026-10-11",
+  "log": "log.md",
+  "questions": [
+    {
+      "id": "Q-007",
+      "title": "Sync: local-first, or a hosted database?",
+      "priority": "blocking",
+      "status": "open",
+      "area": "Architecture",
+      "asked": "2026-10-11",
+      "blocks": "The data layer and the sign-in screens.",
+      "context": [
+        "Households share one chore list on 2 to 6 phones. Edits must merge when two people change the list offline.",
+        "Local-first (SQLite on each phone plus a sync service for merges) works offline and costs about USD 0 to 20 a month. It takes about 2 weeks more to build.",
+        "A hosted database (a managed Postgres with live queries) is faster to build, but the app shows a spinner with no connection, and the cost grows with each household."
+      ],
+      "options": [
+        {
+          "label": "A. Local-first",
+          "detail": "Offline always works. About 2 weeks more.",
+          "recommended": true
+        },
+        {
+          "label": "B. Hosted database",
+          "detail": "Faster to build. Needs a connection."
+        },
+        {
+          "label": "C. Hosted now, local-first in 2.0",
+          "detail": "Ship sooner; a data migration later."
+        }
+      ],
+      "recommendation": "A. Offline use is the main complaint in the reviews of the apps we compared, and a later migration costs more than the 2 weeks.",
+      "decision": ""
+    },
+    {
+      "id": "Q-006",
+      "title": "Onboarding: three short screens, or one screen?",
+      "priority": "urgent",
+      "status": "open",
+      "area": "UX",
+      "asked": "2026-10-11",
+      "blocks": "",
+      "context": [
+        "The first-run test with 5 people: 2 people skipped the three-screen version at screen 2 and did not find the invite button.",
+        "The one-screen version puts the invite button first and explains chores with an example list."
+      ],
+      "images": [
+        {
+          "src": "assets/onboarding-three.png",
+          "caption": "Three screens"
+        },
+        {
+          "src": "assets/onboarding-one.png",
+          "caption": "One screen"
+        }
+      ],
+      "options": [
+        {
+          "label": "One screen",
+          "detail": "Invite first, example list below.",
+          "recommended": true
+        },
+        {
+          "label": "Three screens",
+          "detail": "Keep, but move the invite to screen 1."
+        }
+      ],
+      "recommendation": "One screen. Fewer taps before the first invite, and it was faster in the test.",
+      "decision": ""
+    },
+    {
+      "id": "Q-005",
+      "title": "App icon: which sketch goes to the designer?",
+      "priority": "normal",
+      "status": "open",
+      "area": "Brand",
+      "asked": "2026-10-10",
+      "blocks": "",
+      "context": [
+        "Three sketches. All read at 29 pt on the home screen. The kettle is the most distinctive in the store search for 'chores'."
+      ],
+      "images": [
+        {
+          "src": "assets/icon-kettle.png",
+          "caption": "Kettle"
+        },
+        {
+          "src": "assets/icon-house.png",
+          "caption": "House"
+        },
+        {
+          "src": "assets/icon-check.png",
+          "caption": "Check mark"
+        }
+      ],
+      "options": [
+        {
+          "label": "Kettle",
+          "detail": "Warm, and no other chores app uses it.",
+          "recommended": true
+        },
+        {
+          "label": "House",
+          "detail": "Clear, but common."
+        },
+        {
+          "label": "Check mark",
+          "detail": "Simple, but looks like a to-do app."
+        }
+      ],
+      "recommendation": "Kettle.",
+      "decision": ""
+    },
+    {
+      "id": "Q-004",
+      "title": "Release notes: playful or plain?",
+      "priority": "low",
+      "status": "open",
+      "area": "Copy",
+      "asked": "2026-10-09",
+      "blocks": "",
+      "context": [
+        "The store shows the first two lines. Playful notes get more reads in some studies, but they hide the fix list."
+      ],
+      "options": [
+        {
+          "label": "Plain",
+          "detail": "The fix list first.",
+          "recommended": true
+        },
+        {
+          "label": "Playful",
+          "detail": "One fun line, then the list."
+        }
+      ],
+      "recommendation": "Plain, with one short friendly line at the end.",
+      "decision": ""
+    },
+    {
+      "id": "Q-003",
+      "title": "Reminders: push notifications, or only in-app?",
+      "priority": "urgent",
+      "status": "answered",
+      "area": "Product",
+      "asked": "2026-10-08",
+      "blocks": "",
+      "context": [
+        "Reminders are the main reason people open a chores app."
+      ],
+      "options": [
+        {
+          "label": "Push, opt-in after the first chore",
+          "detail": "",
+          "recommended": true
+        },
+        {
+          "label": "In-app only",
+          "detail": ""
+        }
+      ],
+      "recommendation": "Push, asked after the first chore is done.",
+      "decision": "D-012: push notifications, asked after the first chore is done. One reminder a day at most."
+    }
+  ],
+  "autodecided": [
+    {
+      "id": "A-014",
+      "date": "2026-10-11",
+      "title": "Date formats",
+      "decision": "Use the platform Intl API for dates and times.",
+      "reason": "No new dependency; it covers all the locales we ship."
+    },
+    {
+      "id": "A-013",
+      "date": "2026-10-10",
+      "title": "Lint rules",
+      "decision": "Use the recommended preset of the linter, with no custom rules.",
+      "reason": "Technical; easy to change later."
+    },
+    {
+      "id": "A-012",
+      "date": "2026-10-09",
+      "title": "Test runner",
+      "decision": "Use the built-in test runner of the platform.",
+      "reason": "One less dependency; fast enough for our test count."
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "tbd-board",
+  "version": "1.0.0",
+  "description": "A calm way for your coding agent to ask you for decisions: one HTML page of question cards that you answer in any browser, an add-only decision log, and a list of the small choices the agent made alone.",
+  "author": {
+    "name": "Esmond Wong",
+    "url": "https://github.com/Camerash"
+  },
+  "homepage": "https://github.com/Camerash/tbd-board",
+  "repository": "https://github.com/Camerash/tbd-board",
+  "license": "MIT",
+  "keywords": ["decisions", "decision-log", "human-in-the-loop", "questions", "agent-skills", "productivity"]
+}

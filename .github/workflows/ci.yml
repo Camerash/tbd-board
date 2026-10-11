@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  helper:
+    name: Helper tests (Python ${{ matrix.python }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.8", "3.13"]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+      - name: Unit tests
+        run: uv run --no-project --python ${{ matrix.python }} python -m unittest discover -s tests -v
+
+  board:
+    name: Board page in headless Chrome
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Let Chrome use its sandbox (Ubuntu 24.04 limits user namespaces)
+        run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+      - name: Browser check
+        run: node tests/browser_check.mjs
+
+  validate:
+    name: Skill and plugin validators
+    runs-on: ubuntu-latest
+    env:
+      DISABLE_TELEMETRY: "1"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+      - name: Agent Skills spec
+        run: uvx --from skills-ref==0.1.1 agentskills validate skills/tbd-board
+      - name: The skills CLI finds the skill
+        run: npx -y skills@1.7.2 add . --list
+      - name: Board check on the demo board
+        run: python3 skills/tbd-board/scripts/board.py check --board examples/hearth/board.html
