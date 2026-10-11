@@ -1,6 +1,6 @@
 # Install tests
 
-Each test installed the skill from a clean local export of this repository (only the tracked files), in an empty test folder. "Prompt" is what the agent was asked after the install.
+The tests before the release installed the skill from a clean local export of this repository (only the tracked files), in an empty test folder. The last test installed from GitHub after the release. "Prompt" is what the agent was asked after the install.
 
 | Agent | Version | Route | Prompt | Result | Date |
 | --- | --- | --- | --- | --- | --- |
@@ -12,6 +12,7 @@ Each test installed the skill from a clean local export of this repository (only
 | Codex CLI | 0.160.0 | Same project, after the test above | A pasted answer block: one answer with a condition, one unknown card ID | Pass. The agent recorded D-001 with the condition, set the card to answered, did the work, and reported the unknown ID without a record. `check` passes. | 2026-10-11 |
 | skills CLI | 1.7.2 | `npx skills add <local export> --list` | none | Pass. It finds 1 skill. | 2026-10-11 |
 | Agent Skills validator | skills-ref 0.1.1 | `agentskills validate skills/tbd-board` | none | Pass. | 2026-10-11 |
+| Claude Code, Codex CLI, skills CLI | 2.1.284, 0.160.0, 1.7.2 | From GitHub after the v1.0.0 release: `claude plugin marketplace add Camerash/tbd-board`, `codex plugin marketplace add Camerash/tbd-board`, and `npx skills add Camerash/tbd-board --list` | none | Pass. Both agents installed version 1.0.0 with the full skill folder. The skills CLI finds 1 skill. | 2026-10-12 |
 
 Not tested (not installed on the test machine): GitHub Copilot CLI, VS Code, Cursor, Gemini CLI, Antigravity CLI, Windsurf, OpenCode, Amp, Goose, Roo Code, Kiro, Pi, Cline. The README marks them "Not yet".
 

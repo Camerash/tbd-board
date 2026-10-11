@@ -7,7 +7,7 @@
 //         docs/media/icon-light.svg
 // Writes: examples/hearth/board.html, examples/hearth/log.md, examples/hearth/assets/*.png (card images),
 //         docs/media/board-*.png, docs/media/tap-option.gif, docs/media/icon-{128,256,512}.png,
-//         skills/tbd-board/assets/icon.png
+//         skills/tbd-board/assets/icon.png, .claude-plugin/icon.png
 // Chrome and the temp folder are removed in all cases. Run it again at any time; it overwrites its outputs.
 import { execFileSync, spawn } from "node:child_process";
 import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
@@ -248,6 +248,10 @@ async function icons() {
     await render({ width: size, height: size, transparent: true }, pathToFileURL(page).href, join(mediaDir, `icon-${size}.png`), 300 * KB);
   }
   copyFileSync(join(mediaDir, "icon-256.png"), at("skills/tbd-board/assets/icon.png"));
+  // The Anthropic directory listing icon: a square PNG of 512 to 2048 px. A white background keeps it clear on dark pages,
+  // and the margin keeps the tiles inside a listing that rounds the corners.
+  writeFileSync(page, `<!doctype html><meta charset="utf-8"><style>html,body{margin:0;background:#fff}svg{display:block;width:832px;height:832px;margin:96px}</style>${svg}`);
+  await render({ width: 1024, height: 1024 }, pathToFileURL(page).href, at(".claude-plugin/icon.png"), 300 * KB);
 }
 
 // ---- Board screenshots and the GIF ----
