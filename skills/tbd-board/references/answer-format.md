@@ -12,12 +12,15 @@ Q-007 (Sync: local-first, or a hosted database?): A. Local-first, but keep the e
 Q-006 (Onboarding: three short screens, or one screen?): One screen.
 
 Q-004 (Release notes: playful or plain?): Later
+
+(Agent: record these answers with the tbd-board skill.)
 ```
 
 - **Line 1, the header:** the board title, the board ID (`boardId`), the data revision (`revision`), the local time of the copy, and the progress (answered open cards of all open cards).
 - **Then one paragraph for each answered open card:** `<card ID> (<card title>): <answer>`. A blank line separates the cards. An answer can have line breaks, but no blank lines.
 - The order is the order of the Open section: blocking, urgent, normal, low, then by ID.
 - Cards with no answer are not in the block.
+- **The last line** tells an agent that has not loaded this skill what to do with the paste. It is not an answer.
 - "Copy this answer" on one card makes the same block with only that card.
 - A tap on an option puts the option label at the start of the answer. The user can add words after it.
 

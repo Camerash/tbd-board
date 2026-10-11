@@ -228,12 +228,14 @@
       navigator.clipboard.writeText(t).then(() => { statusEl.textContent = done; }, () => {});
     }
   }
+  const AGENT_LINE = "(Agent: record these answers with the tbd-board skill.)";
   function copyAnswers(from, statusEl) {
     const d = new Date(), p = (n) => String(n).padStart(2, "0");
     const stamp = `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
     const given = from.filter(answerOf);
     const head = `TBD Board answers: ${title} (board ${boardId}, rev ${revision}), ${stamp}, ${answeredSentence()}`;
-    copyText(given.length ? [head, ...given.map((e) => `${e.q.id} (${e.q.title}): ${answerOf(e)}`)].join("\n\n") : "(no answers written yet)",
+    // The last line tells an agent that has not loaded the skill yet what to do with the paste.
+    copyText(given.length ? [head, ...given.map((e) => `${e.q.id} (${e.q.title}): ${answerOf(e)}`), AGENT_LINE].join("\n\n") : "(no answers written yet)",
       statusEl, given.length > 0);
   }
 

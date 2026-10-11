@@ -59,6 +59,8 @@ Q-007 (Sync: local-first, or a hosted database?): A. Local-first, but keep the e
 Q-006 (Onboarding: three short screens, or one screen?): One screen.
 
 Q-004 (Release notes: playful or plain?): Later
+
+(Agent: record these answers with the tbd-board skill.)
 ```
 
 ## Install
@@ -67,7 +69,7 @@ Pick **one** route per agent. Two routes install the skill two times.
 
 | Agent | Install | Tested |
 | --- | --- | --- |
-| **Claude Code** | `claude plugin marketplace add Camerash/tbd-board`<br>`claude plugin install tbd-board@camerash`<br>(or `/plugin marketplace add ...` and `/plugin install ...` in a session) | Installs; [details](docs/install-tests.md) |
+| **Claude Code** | `claude plugin marketplace add Camerash/tbd-board`<br>`claude plugin install tbd-board@camerash`<br>(or `/plugin marketplace add ...` and `/plugin install ...` in a session) | Yes |
 | **Codex** | `codex plugin marketplace add Camerash/tbd-board`<br>`codex plugin add tbd-board@camerash` | Yes |
 | **GitHub Copilot CLI** | `copilot plugin marketplace add Camerash/tbd-board`<br>`copilot plugin install tbd-board@camerash` | Not yet |
 | **VS Code (Copilot)** | Command Palette, **Chat: Install Plugin From Source**, then `https://github.com/Camerash/tbd-board` | Not yet |

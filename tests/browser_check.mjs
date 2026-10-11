@@ -290,14 +290,15 @@ async function mainScenario() {
     eq("copy all: card paragraphs in open order", paras, [
       "Q-007 (Sync: local-first, or a hosted database?): A. Local-first, but keep the export button",
       "Q-006 (Onboarding: three short screens, or one screen?): One screen",
-      "Q-004 (Release notes: playful or plain?): Later"]);
+      "Q-004 (Release notes: playful or plain?): Later",
+      "(Agent: record these answers with the tbd-board skill.)"]);
     check("copy all: box is visible, focused and selected", out.shown && out.focus && out.selected[0] === 0 && out.selected[1] === out.selected[2], JSON.stringify(out));
     check("copy all: status text tells the result", out.status.length > 0, JSON.stringify(out));
 
     // Copy this answer.
     await tab.click(btn(Q("Q-006"), "Copy this answer"));
     const one = await tab.eval(`document.getElementById('out-text').value`);
-    eq("copy this answer: same header, only that card", one.split("\n\n").slice(1), ["Q-006 (Onboarding: three short screens, or one screen?): One screen"]);
+    eq("copy this answer: same header, only that card", one.split("\n\n").slice(1), ["Q-006 (Onboarding: three short screens, or one screen?): One screen", "(Agent: record these answers with the tbd-board skill.)"]);
     check("copy this answer: header has the board totals", one.startsWith("TBD Board answers: Hearth decisions (board k7f3q2, rev 14), ") && one.split("\n")[0].endsWith(", 3 of 4 open cards answered."), one);
     await tab.click(btn(Q("Q-005"), "Copy this answer"));
     eq("copy this answer with no answer", await tab.eval(`[document.getElementById('out-text').value, ${Q("Q-005")}.querySelector('.copied').textContent]`), ["(no answers written yet)", "No answers written yet."]);
@@ -423,7 +424,7 @@ async function storageScenario() {
     await tab.type("kettle");
     await tab.click(`document.getElementById('copy-all')`);
     eq("storage blocked: tap, type, filter and copy work", await tab.eval(`[${VISIBLE}, document.getElementById('out-text').value.split("\\n\\n").slice(1)]`),
-      [["Q-005"], ["Q-007 (Sync: local-first, or a hosted database?): A. Local-first, fast"]]);
+      [["Q-005"], ["Q-007 (Sync: local-first, or a hosted database?): A. Local-first, fast", "(Agent: record these answers with the tbd-board skill.)"]]);
     check("storage blocked: no exception after use", tab.errors.length === 0, tab.errors.join("\n     "));
   });
 }

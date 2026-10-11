@@ -144,6 +144,8 @@ TBD Board answers: Hearth decisions (board k7f3q2, rev 14), 2026-10-11 14:05, 3 
 Q-007 (Sync: local-first, or a hosted database?): A. Local-first, but keep the export button.
 
 Q-004 (Release notes: playful or plain?): Later
+
+(Agent: record these answers with the tbd-board skill.)
 ```
 
 Do these steps for the full batch before you act:
@@ -169,7 +171,7 @@ python3 <skill folder>/scripts/board.py answer Q-007 --decision "Use local-first
 ```
 
 - Write the decision in full words, so that it is clear without the card. Do not write only "A". Keep the conditions of the user.
-- Add `--reason` when the user gave a reason.
+- Add `--reason` only with a reason that the user gave. Do not write a reason yourself.
 - For a reply to a decided-for-you entry, use its ID: `board.py answer A-013 --decision "..."`.
 - To change an earlier decision, add `--supersedes D-012`. The old entry stays in the log.
 - For a decision that the user gives in the chat without a card, add a card with `ask`, then record the decision with `answer`. The board then shows it too.
