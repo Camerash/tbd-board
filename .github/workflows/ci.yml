@@ -16,7 +16,7 @@ jobs:
         python: ["3.8", "3.13"]
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10
+      - uses: astral-sh/setup-uv@v10.3.0
       - name: Unit tests
         run: uv run --no-project --python ${{ matrix.python }} python -m unittest discover -s tests -v
 
@@ -40,7 +40,7 @@ jobs:
       DISABLE_TELEMETRY: "1"
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10
+      - uses: astral-sh/setup-uv@v10.3.0
       - name: Agent Skills spec
         run: uvx --from skills-ref==0.1.1 agentskills validate skills/tbd-board
       - name: The skills CLI finds the skill

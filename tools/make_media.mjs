@@ -325,14 +325,32 @@ async function tapGif() {
 
 // ---- Run ----
 async function cleanup() {
-  try { browser?.ws.close(); } catch { /* already closed */ }
-  if (chrome && chrome.exitCode === null) {
+  const running = () => chrome !== null && chrome.exitCode === null && chrome.signalCode === null;
+  if (running()) {
     const exited = new Promise((r) => chrome.once("exit", r));
-    chrome.kill("SIGTERM");
-    await Promise.race([exited, sleep(3000)]);
-    if (chrome.exitCode === null) { chrome.kill("SIGKILL"); await Promise.race([exited, sleep(2000)]); }
+    if (browser) {
+      // Browser.close also stops the helper processes. After a signal, Linux helpers can still write to the profile.
+      // Chrome can close the socket before it replies. The wait for the exit covers that, so the error is not used.
+      browser.send("Browser.close").catch(() => {});
+      await Promise.race([exited, sleep(3000)]);
+    }
+    for (const signal of ["SIGTERM", "SIGKILL"]) {
+      if (!running()) break;
+      chrome.kill(signal);
+      await Promise.race([exited, sleep(3000)]);
+    }
   }
-  rmSync(work, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 });
+  try { browser?.ws.close(); } catch { /* already closed */ }
+  // rmSync retries only the last rmdir. Retry the full removal, because a helper can add a file during the removal.
+  for (let attempt = 1; ; attempt++) {
+    try {
+      rmSync(work, { recursive: true, force: true });
+      return;
+    } catch (e) {
+      if (attempt === 10) return console.error(`WARN cannot remove the temp folder ${work}: ${e.message}`);
+      await sleep(300);
+    }
+  }
 }
 for (const sig of ["SIGINT", "SIGTERM"]) process.on(sig, () => cleanup().finally(() => process.exit(130)));
 // A normal run takes about 10 seconds. A stuck run stops with an error instead of waiting for ever.
